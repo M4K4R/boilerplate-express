@@ -1,5 +1,13 @@
 var express = require("express");
 var app = express();
+var bodyParser = require('body-parser');
+
+app.use((request, response, next) => {
+  console.log(request.method + ' ' + request.path + ' - ' + request.ip)
+  next()
+})
+
+app.use(bodyParser.urlencoded({ extended: false}))
 
 console.log("Hello World");
 
@@ -26,5 +34,26 @@ app.get("/json", (request, response) => {
   }
 });
 
+app.get('/now', (request, response, next) => {
+  request.time = new Date().toString()
+  next()
+}, (request, response) => {
+  response.json({'time': request.time})
+});
+
+app.get('/:word/echo', (request, response) => {
+  response.json({echo : request.params.word})
+});
+
+app.get('/name', (request, response) => {
+  let string = request.query.first + ' ' + request.query.last
+  response.json({name: string})
+});
+
+app.post('/name', bodyParser.urlencoded({ extended: false }), 
+        (request, response) => {
+  let string = request.body.first + " " + request.body.last;
+  response.json({ name: string });
+});
 
 module.exports = app;
